@@ -1,7 +1,6 @@
-package engine
+package core
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/Testausserveri/uptimes/configuration"
@@ -22,21 +21,8 @@ func NewGroup(config configuration.Config) StatusGroup {
 }
 
 func (s *StatusGroup) UpdateDomain(domain configuration.Domain) error {
-	var (
-		alive  bool = true
-		client http.Client
-	)
-
-	req, err := http.NewRequest("GET", domain.Url, nil)
-	if err != nil {
-		return err
-	}
-
 	timeStarted := time.Now()
-	if _, err = client.Do(req); err != nil {
-		alive = false
-	}
-
-	s.Storage.AddOrUpdate(domain, alive, time.Since(timeStarted).Milliseconds())
+	err := VerifyHost(domain.Url, domain.Requirements)
+	s.Storage.AddOrUpdate(domain, err, time.Since(timeStarted).Milliseconds())
 	return nil
 }

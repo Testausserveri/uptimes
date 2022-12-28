@@ -7,8 +7,10 @@ import (
 )
 
 type DomainHistoryStatus struct {
-	Date time.Time
-	Up   bool
+	Date         time.Time
+	Up           bool
+	Error        error
+	ResponseTime int64
 }
 
 type DomainStatus struct {
@@ -24,12 +26,12 @@ func NewStorage() Storage {
 	return []*DomainStatus{}
 }
 
-func (s *Storage) AddOrUpdate(domain configuration.Domain, up bool, responseTime int64) {
+func (s *Storage) AddOrUpdate(domain configuration.Domain, err error, responseTime int64) {
 	var found bool
 	for _, storageElement := range *s {
 		if storageElement.Domain.Name == domain.Name {
-			storageElement.CurrentlyUp = up
-			if up {
+			storageElement.CurrentlyUp = err == nil
+			if err == nil {
 				storageElement.LastResponseTime = responseTime
 			}
 			found = true
@@ -38,10 +40,17 @@ func (s *Storage) AddOrUpdate(domain configuration.Domain, up bool, responseTime
 	if !found {
 		domainStatus := &DomainStatus{
 			Domain:      domain,
-			CurrentlyUp: up,
+			CurrentlyUp: err == nil,
 		}
 
-		if up {
+		domainStatus.History = append(domainStatus.History, DomainHistoryStatus{
+			Date:         time.Now(),
+			Up:           err == nil,
+			ResponseTime: responseTime,
+			Error:        err,
+		})
+
+		if err == nil {
 			domainStatus.LastResponseTime = responseTime
 		}
 

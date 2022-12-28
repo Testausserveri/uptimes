@@ -4,50 +4,30 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"net/http"
 
-	"github.com/Testausserveri/uptimes/engine"
+	"github.com/Testausserveri/uptimes/core"
 	"github.com/Testausserveri/uptimes/storage"
+	"github.com/labstack/echo/v4"
 )
 
-var usedPaths []string = []string{"/assets/"}
-
-func newHandler(group engine.StatusGroup) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func StatusGroupHandler(group core.StatusGroup) echo.HandlerFunc {
+	return func(c echo.Context) error {
 		templatePath := fmt.Sprintf("public/%s", group.Config.TemplateName)
 		t, err := template.ParseFiles(templatePath)
 		if err != nil {
 			log.Println(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
+			return err
 		}
 
-		if err := t.Execute(w, struct {
-			Storage storage.Storage
-		}{
+		return t.Execute(c.Response().Writer, struct{ Storage storage.Storage }{
 			*group.Storage,
-		}); err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		})
 	}
 }
 
-func InitRoute(statusGroup engine.StatusGroup) {
-	for _, rn := range usedPaths {
-		if rn == statusGroup.Config.ServePath {
-			log.Fatalln(rn, "is already being served.")
-		}
-	}
-
-	http.Handle(statusGroup.Config.ServePath, newHandler(statusGroup))
-
-	usedPaths = append(usedPaths, statusGroup.Config.ServePath)
-}
-
-func Serve(address string, port int, eng ...engine.StatusGroup) error {
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("public/assets/"))))
-
-	return http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), nil)
+func New() *echo.Echo {
+	e := echo.New()
+	e.HideBanner = true
+	e.Static("/assets", "public/assets")
+	return e
 }
