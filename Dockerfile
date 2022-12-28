@@ -7,6 +7,6 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN go build . -o uptimes
+RUN go build -o uptimes .
 
 CMD ["./uptimes"]
