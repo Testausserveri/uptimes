@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   server:
-    image: "ghcr.io/testausserveri/uptimes"
+    image: "ghcr.io/testausserveri/uptimes:release"
     restart: 'always'
 
     ports: 
