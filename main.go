@@ -3,47 +3,40 @@ package main
 import (
 	"flag"
 	"log"
-	"time"
 
-	"github.com/Testausserveri/uptimes/configuration"
-	"github.com/Testausserveri/uptimes/core"
-	"github.com/Testausserveri/uptimes/front"
-	"github.com/romeq/jobscheduler"
+	"github.com/Testausserveri/testausuptime/api"
+	"github.com/Testausserveri/testausuptime/config"
+	"github.com/jackc/pgx/v4"
+	"github.com/labstack/echo"
 )
 
+func router() *echo.Echo {
+	r := echo.New()
+	r.HideBanner = true
+	r.Debug = false
+	return r
+}
+
 func main() {
-	configFile := flag.String("c", "configs", "configuration directory")
+	cf := flag.String("c", "configs", "configuration directory")
+	la := flag.String("a", ":8080", "HTTP server listen address")
 	flag.Parse()
 
-	e := front.New()
-	configurations := configuration.From(*configFile)
-
-	for _, configFile := range configurations {
-		statusGroup := core.NewGroup(configFile)
-		e.GET(statusGroup.Config.ServePath, front.StatusGroupHandler(statusGroup))
-
-		var jobs []jobscheduler.Job
-		for _, domain := range statusGroup.Config.Domains {
-			worker := newfetchworker(domain.Interval, fetch(statusGroup, domain))
-			jobs = append(jobs, worker)
-		}
-
-		go jobscheduler.Run(jobs)
+	configs, err := config.ParseConfigs(*cf)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	if err := e.Start("localhost:8080"); err != nil {
-		log.Fatalln(err)
+	if len(configs) == 0 {
+		log.Fatal("at least one configuration file is required")
+		return
 	}
-}
 
-func newfetchworker(duration time.Duration, fn func()) jobscheduler.Job {
-	return jobscheduler.NewJob(0, duration, fn, true)
-}
+	for _, config := range configs {
+		log.Println(config)
 
-func fetch(group core.StatusGroup, domain configuration.Domain) func() {
-	return func() {
-		if err := group.UpdateDomain(domain); err != nil {
-			log.Println(err)
-		}
 	}
+
+	server := api.NewServer(&pgx.Conn{}, *la, router())
+	log.Fatal(server.Start())
 }
