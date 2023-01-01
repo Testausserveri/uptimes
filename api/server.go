@@ -23,7 +23,3 @@ func NewServer(dbConn *pgx.Conn, listenAddress string, router *echo.Echo) *Serve
 func (s *Server) Start() error {
 	return s.router.Start(s.listenAddress)
 }
-
-func (s *Server) AddRoute(m, p string, r echo.HandlerFunc) {
-	s.router.Add(m, p, r)
-}

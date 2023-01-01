@@ -57,34 +57,24 @@ This application is published to [ghcr.io](ghcr.io/Testausserveri/uptimes). Ther
 # - Two or more configuration files can't be served at same path
 ServePath = "/"
 
-# This is often unneeded, but can be helpful for example in customization where
-# you'd like to have different looks for different configurations.
-#
-# - Templates are located in $UPTIMES_DIRECTORY/public/
-# - Assets are located in $UPTIMES_DIRECTORY/public/assets/
-# - Assets are served at localhost:<port>/assets
-TemplateName = "index.gohtml"
-
 # The domains are configured in the Domains-list below.
 # For each domain you will create a new list element which looks like following.
-# For requirements
+# For requirements content_type and status_code options are supported.
 
-[[ Domains ]]
-Name = "localhost"
-Interval = "10s"
-Url = "https://some-api.com"
+[[domains]]
+name = "localhost"
+update_interval = "10s"
+domain = "https://some-api.com"
 
-[ Domains.Requirements ]
-ContentType = "application/json"
-Status = 200
+[domains.requirements]
+content_type = "application/json"
+status = 200
 
-[[ Domains ]]
-Name = "localhost-1"
-Interval = "10s"
-Url = "http://someotherdoma.in"
+# [[domains]]
+# ...
+# [ domains.requirements ]
+# ...
 
-[ Domains.Requirements ]
-ContentType = "text/html"
-Status = 200
+# ..and so on
 
 ```
