@@ -1,12 +1,12 @@
 # Uptimes
 
-A simple server status dashboard heavily inspired by [gatus](https://github.com/TwiN/gatus).
+A simple uptime dashboard for multiple servers.
 
 ## Features
 
--   Easily customizable dashboard page
+-   Powerful REST API
 -   Rules for what categorizes as uptime
--   High concurrency
+-   Concurrency
 
 ## Setup
 
