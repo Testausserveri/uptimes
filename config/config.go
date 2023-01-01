@@ -5,22 +5,22 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/Testausserveri/testausuptime/types"
+	"github.com/Testausserveri/uptimes/types"
 )
 
-type StatusGroup struct {
-	Domains []types.DomainConfiguration
-}
-
-func ParseConfigs(p string) ([]StatusGroup, error) {
-	var statusgroups []StatusGroup
+func ParseConfigs(p string) ([]types.StatusGroupConfiguration, error) {
+	var statusgroups []types.StatusGroupConfiguration
 	err := filepath.WalkDir(p, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
 		if err != nil {
 			return err
 		}
 
-		var sg StatusGroup
-		if _, err := toml.DecodeFile(path, sg); err != nil {
+		var sg types.StatusGroupConfiguration
+		if _, err := toml.DecodeFile(path, &sg); err != nil {
 			return err
 		}
 

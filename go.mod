@@ -1,4 +1,4 @@
-module github.com/Testausserveri/testausuptime
+module github.com/Testausserveri/uptimes
 
 go 1.19
 

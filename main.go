@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/Testausserveri/testausuptime/api"
-	"github.com/Testausserveri/testausuptime/config"
+	"github.com/Testausserveri/uptimes/api"
+	"github.com/Testausserveri/uptimes/config"
 	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo"
 )
@@ -13,6 +13,7 @@ import (
 func router() *echo.Echo {
 	r := echo.New()
 	r.HideBanner = true
+	r.HidePort = true
 	r.Debug = false
 	return r
 }
@@ -32,11 +33,13 @@ func main() {
 		return
 	}
 
-	for _, config := range configs {
-		log.Println(config)
-
+	for _, cfg := range configs {
+		if err := config.VerifyConfig(cfg); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	server := api.NewServer(&pgx.Conn{}, *la, router())
+	log.Printf("starting server at %s\n", *la)
 	log.Fatal(server.Start())
 }

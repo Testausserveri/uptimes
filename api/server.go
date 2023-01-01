@@ -6,9 +6,10 @@ import (
 )
 
 type Server struct {
-	dbConnection  *pgx.Conn
 	listenAddress string
-	router        *echo.Echo
+
+	dbConnection *pgx.Conn
+	router       *echo.Echo
 }
 
 func NewServer(dbConn *pgx.Conn, listenAddress string, router *echo.Echo) *Server {
