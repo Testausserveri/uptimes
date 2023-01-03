@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+  backend:
+    image: 'uptimes-backend'
+    volumes:
+      - /app/configs
+    ports:
+      - 8080:8080
+
+  frontend:
+    image: 'uptimes-front'
+
+    environment:
+      BASE_URL: http://backend:8080
+      
+    ports:
+      - 3000:3000

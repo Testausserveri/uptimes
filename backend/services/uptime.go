@@ -75,7 +75,7 @@ func domainUpdater(dm types.Domain, hl int) jobscheduler.Job {
 func InitStatusGroupUpdater(sg *types.StatusGroup) {
 	var jobs []jobscheduler.Job
 	for _, dm := range *sg.Domains {
-		jobs = append(jobs, domainUpdater(dm, 2))
+		jobs = append(jobs, domainUpdater(dm, 50))
 	}
 
 	go jobscheduler.Run(jobs)
